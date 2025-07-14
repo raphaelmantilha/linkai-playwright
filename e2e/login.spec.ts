@@ -15,8 +15,8 @@ test('deve logar com sucesso', async ({ page }) => {
     await page.locator('button[type="submit"]').click()
 
     // Não precisa do await porque não há uma ação aqui (só procura o elemento)
-    const title = page.locator('h1')
-    await expect(title).toContainText('Olá, Raphael!')
+    const titulo = page.locator('h1')
+    await expect(titulo).toContainText('Olá, Raphael!')
 
     //await page.waitForTimeout(10000)
 })
