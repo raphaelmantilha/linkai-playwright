@@ -1,22 +1,65 @@
+// import { writeFileSync } from 'fs';
+
 import { test, expect } from '@playwright/test'
+import { getLoginPage } from '../support/pages/LoginPage'
 
 test('deve logar com sucesso', async ({ page }) => {
 
+    const loginPage = getLoginPage(page)
+
     const user = {
+        name: 'Raphael',
         username: 'raphael',
         password: 'pwd123'
     }
 
-    await page.goto('http://localhost:3000/login')
+    await loginPage.open()
+    await loginPage.submit(user.username, user.password)
 
-    await page.locator('#username').fill(user.username)
-    await page.locator('#password').fill(user.password)
-
-    await page.locator('button[type="submit"]').click()
-
-    // Não precisa do await porque não há uma ação aqui (só procura o elemento)
     const title = page.locator('h1')
-    await expect(title).toContainText('Olá, Raphael!')
+    await expect(title).toContainText(`Olá, ${user.name}!`)
+});
 
-    //await page.waitForTimeout(10000)
-})
+test('não deve logar com senha incorreta', async ({ page }) => {
+
+    const loginPage = getLoginPage(page)
+
+    const user = {
+        name: 'Raphael',
+        username: 'raphael',
+        password: '123456'
+    }
+
+    await loginPage.open()
+    await loginPage.submit(user.username, user.password)
+
+    // await page.waitForTimeout(1000)
+    // const html = await page.content()
+    // writeFileSync('temp.html', html)
+
+    const toast = page.locator('.toast')
+    await expect(toast).toContainText('Oops!')
+    await expect(toast).toContainText('Algo deu errado com seu login. Por favor, verifique suas credenciais e tente novamente.')
+});
+
+test('não deve logar com usuário não cadastrado', async ({ page }) => {
+
+    const loginPage = getLoginPage(page)
+
+    const user = {
+        name: 'Raphael',
+        username: 'not-found',
+        password: '123456'
+    }
+
+    await loginPage.open()
+    await loginPage.submit(user.username, user.password)
+
+    // await page.waitForTimeout(1000)
+    // const html = await page.content()
+    // writeFileSync('temp.html', html)
+
+    const toast = page.locator('.toast')
+    await expect(toast).toContainText('Oops!')
+    await expect(toast).toContainText('Algo deu errado com seu login. Por favor, verifique suas credenciais e tente novamente.')
+});
